@@ -25,25 +25,30 @@ export class CartManager {
     }
   }
 
-  async addCart(products) {
+  async createCart() {
     const carts = await this.getCarts();
     const id = carts.length === 0 ? 0 : Math.max(...carts.map((p) => p.id));
     carts.push({
-      products,
+      products: [],
       id: id + 1,
     });
 
     await fs.promises.writeFile(this.path, JSON.stringify(carts));
   }
 
-  async eraseCart(id){
+  async updateCart(cart, product, indexOfProduct) {
     const carts = await this.getCarts();
-    const cart = carts.find((p) => p.id == id);
-    if (!cart) {
-      return {result:"Error"}
-    }
-    const updatedCarts = carts.filter((c) => c != cart);
+    const indexOfCart = carts.findIndex((c) => c.id == cart.id);
+    console.log(indexOfCart);
+    if (carts[indexOfCart].products.find((p) => p.id === product.id)) {
+      carts[indexOfCart].products[indexOfProduct].quantity += 1;
 
-    await fs.promises.writeFile(this.path, JSON.stringify(updatedCarts));
+      await fs.promises.writeFile(this.path, JSON.stringify(carts));
+      return;
+    }
+    const id = product.id;
+    carts[indexOfCart].products.push({ id, quantity: 1 });
+
+    await fs.promises.writeFile(this.path, JSON.stringify(carts));
   }
 }

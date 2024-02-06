@@ -17,38 +17,28 @@ router.get("/:cid", async (req, res) => {
   if (!cart) {
     return res.status(400).send({ message: "Cart has not been found" });
   }
-  res.send(cart);
+  res.send(cart.products);
 });
 
 router.post("/", async (req, res) => {
-  const { products } = req.body;
-  if (!Array.isArray(products)) {
-    return res.status("400").send({ message: "'Products' isn't an Array" });
-  }
-  await cartManager.addCart(products);
+  await cartManager.createCart();
 
   res.send({ message: "success" });
 });
 
 router.post("/:cid/product/:pid", async (req, res) => {
   const cart = await cartManager.getCartById(parseInt(req.params.cid));
-  console.log(cart);
   const product = await productManager.getProductById(parseInt(req.params.pid));
-  const indexOfProduct = cart.products.findIndex((p) => p.id === product.id);
+  const indexOfProduct = cart.products.findIndex((p) => p.id == product.id);
+
   if (indexOfProduct !== -1) {
-    cart.products[indexOfProduct].quantity += 1;
-    await cartManager.eraseCart(cart.id);
-    await cartManager.addCart(cart);
+    await cartManager.updateCart(cart, product,indexOfProduct);
 
     res.send({ message: "success" });
   } else {
-    const id = product.id;
-    cart.products.push({ id, quantity: 1 });
+    await cartManager.updateCart(cart,product);
 
-    await cartManager.eraseCart(cart.id);
-    await cartManager.addCart(cart);
-
-    res.send({ message: "success" });
+    return res.send({ message: "success" });
   }
 });
 

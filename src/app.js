@@ -1,8 +1,6 @@
 import express from "express";
-import path from "path";
 import productsRouter from "./routes/products.router.js";
 import cartsRouter from "./routes/cart.router.js";
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const PORT = 8080;
 
 const app = express();
